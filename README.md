@@ -14,14 +14,12 @@ this is API for simple online learning platform
 3. install packages
    - npm i
 4. run
-   - npm run start dev
+   - npm run dev
 
 ## API Documentation
 
 ### API URL
 
-https://be-puskarier.herokuapp.com/api/v1/users
+https://api_online_learning.herokuapp.com/api/v1/users
 
 ### API Documentation URL
-
-https://documenter.getpostman.com/view/17279985/TzzHnDom
