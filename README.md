@@ -15,6 +15,10 @@ this is API for simple online learning platform
    - npm i
 4. run
    - npm run dev
+5. testing
+   - open postman
+   - import postman collection (online_learning.postman_collection.json)
+   - then test the api (don't forget to create environment in postman or {{URL}})
 
 ## API Documentation
 
