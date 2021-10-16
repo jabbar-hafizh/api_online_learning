@@ -18,7 +18,7 @@ this is API for simple online learning platform
 5. testing
    - open postman
    - import postman collection (online_learning.postman_collection.json)
-   - then test the api (don't forget to create environment in postman or {{URL}})
+   - then test the api (don't forget to create environment in postman for {{URL}})
 
 ## API Documentation
 
