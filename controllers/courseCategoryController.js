@@ -1,3 +1,5 @@
+const mongoose = require('mongoose');
+
 const APIFeatures = require('../utils/apiFeatures');
 const response = require('../utils/response');
 const common = require('../utils/common');
@@ -187,9 +189,58 @@ exports.getPopular = async (req, res, next) => {
 
     let courseCategories = await CourseCategory.aggregate(aggregateQuery);
 
+    let popularCategories = [];
+    if (courseCategories && courseCategories.length) {
+      courseCategories.map((courseCategory) => {
+        if (
+          courseCategory.cateogryCourses &&
+          courseCategory.cateogryCourses.length
+        ) {
+          courseCategory.cateogryCourses.map((cateogryCourse) => {
+            popularCategories.push(courseCategory._id);
+          });
+        }
+      });
+    }
+
+    Array.prototype.byCount = function () {
+      var itm,
+        a = [],
+        L = this.length,
+        o = {};
+      for (var i = 0; i < L; i++) {
+        itm = this[i];
+        if (!itm) continue;
+        if (o[itm] == undefined) o[itm] = 1;
+        else ++o[itm];
+      }
+      for (var p in o) a[a.length] = p;
+      return a.sort(function (a, b) {
+        return o[b] - o[a];
+      });
+    };
+    let popularCategorySortedAndRemovedDuplicateIds =
+      popularCategories.byCount();
+
+    popularCategories = [];
+
+    if (
+      popularCategorySortedAndRemovedDuplicateIds &&
+      popularCategorySortedAndRemovedDuplicateIds.length
+    ) {
+      for (let popularCategorySortedAndRemovedDuplicateId of popularCategorySortedAndRemovedDuplicateIds) {
+        popularCategories.push(
+          await CourseCategory.findById(
+            mongoose.Types.ObjectId(popularCategorySortedAndRemovedDuplicateId)
+          )
+        );
+      }
+    }
+
     const courseCategoriesObject = {
       total: courseCategories.length,
-      courseCategories: courseCategories,
+      // courseCategories: courseCategories,
+      courseCategories: popularCategories,
     };
 
     return response.responseSuccess(res, courseCategoriesObject);
