@@ -12,6 +12,7 @@ router.post('/login', authController.login);
 router.use(authController.protect);
 
 router.get('/me', userController.getMe, userController.getUser);
+router.patch('/updateMe', userController.getMe, userController.updateUser);
 
 // router.use(authController.restrictTo('admin', 'user'));
 
@@ -35,8 +36,8 @@ router
   .patch(
     authController.restrictTo('admin', 'user'),
     userController.uploadUserPhoto,
-    userController.resizeUserPhoto,
-    userController.updateUser
+    userController.resizeUserPhoto
+    // userController.updateUser
   );
 
 router

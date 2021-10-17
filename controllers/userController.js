@@ -20,6 +20,7 @@ const filterObj = (obj, allowedFields) => {
 };
 
 exports.getMe = (req, res, next) => {
+  console.log('getMe');
   req.params.id = req.user.id;
   req.now = new Date(Date.now());
   next();
@@ -127,27 +128,23 @@ exports.deleteUser = async (req, res, next) => {
 };
 
 exports.updateUser = async (req, res, next) => {
+  console.log('udpateUser');
   try {
+    if (!req.params.id) {
+      Response.responseFailed(res, 'no id');
+    }
+
     // 1) Create error if user POSTs password data
     if (req.body.password || req.body.passwordConfirm) {
-      return next(new AppError('Bukan tempat untuk update password', 400));
+      Response.responseFailed(res, 'cannot update password');
+      // return next(new AppError('Bukan tempat untuk update password', 400));
     }
 
     // 2) Filtered out unwanted fields names that are not allowed to be updated
-    const filteredBody = filterObj(req.body, [
-      'name',
-      'email',
-      'password',
-      'passwordConfirm',
-      'passwordChangedAt',
-      'role',
-      'isDeleted',
-      'photo',
-    ]);
+    const filteredBody = filterObj(req.body, ['fullname', 'photo']);
     if (req.file)
       filteredBody.photo = `${process.env.URL}img/users/${req.file.filename}`;
 
-    console.log(filteredBody);
     // 3) Update user document
     const updatedUser = await User.findByIdAndUpdate(
       req.params.id,
@@ -158,14 +155,10 @@ exports.updateUser = async (req, res, next) => {
       }
     );
 
-    res.status(200).json({
-      success: true,
-      code: '200',
-      message: 'OK',
-      data: {
-        user: updatedUser,
-      },
-    });
+    const user = {
+      user: updatedUser,
+    };
+    Response.responseSuccess(res, user);
   } catch (err) {
     next(err);
   }
