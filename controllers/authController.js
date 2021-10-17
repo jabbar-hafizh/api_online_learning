@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const User = require('../models/userModel');
 const AppError = require('../utils/appError');
+const Response = require('../utils/response');
 
 const filterObj = (obj, allowedFields) => {
   const newObj = {};
@@ -131,13 +132,9 @@ exports.protect = async (req, res, next) => {
     //   token = req.cookies.jwt;
     // }
 
+    console.log('protect func');
     if (!token) {
-      res.status(400).json({
-        success: false,
-        code: '400',
-        message: 'Fail! unauthorized',
-        data: null,
-      });
+      Response.responseFailed(res, 'Unauthorized', 401);
       // return next(new AppError('silahkan login untuk mendapatkan akses', 401));
     }
 
@@ -173,12 +170,7 @@ exports.restrictTo =
     console.log(roles);
     console.log(roles.includes(req.user.role));
     if (!roles.includes(req.user.role)) {
-      res.status(400).json({
-        success: false,
-        code: '400',
-        message: 'Fail! unauthorized',
-        data: null,
-      });
+      Response.responseFailed(res, 'Unauthorized', 401);
       // return next(
       //   new AppError(
       //     'role kamu tidak memiliki izin untuk melakukan tindakan ini',

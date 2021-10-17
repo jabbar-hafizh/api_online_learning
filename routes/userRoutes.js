@@ -13,19 +13,18 @@ router.use(authController.protect);
 
 router.get('/me', userController.getMe, userController.getUser);
 
-router.use(authController.restrictTo('admin', 'user'));
+// router.use(authController.restrictTo('admin', 'user'));
 
 // router.post(
 //   '/logout',
 //   authController.restrictTo('admin', 'user'),
 //   authController.logout
 // );
-
 router
   .route('/')
-  .get(userController.getAllUsers)
+  .get(authController.restrictTo('admin'), userController.getAllUsers)
   .post(
-    authController.restrictTo('admin', 'user'),
+    authController.restrictTo('admin'),
     userController.uploadUserPhoto,
     userController.resizeUserPhoto
   );

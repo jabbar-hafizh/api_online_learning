@@ -3,8 +3,12 @@ const sharp = require('sharp');
 const fs = require('fs');
 
 const User = require('../models/userModel');
+
 const base = require('./baseController');
+
 const AppError = require('../utils/appError');
+const APIFeatures = require('../utils/apiFeatures');
+const Response = require('../utils/response');
 
 // function bantuan untuk filter object
 const filterObj = (obj, allowedFields) => {
@@ -15,17 +19,44 @@ const filterObj = (obj, allowedFields) => {
   return newObj;
 };
 
-// get me dan delete me
 exports.getMe = (req, res, next) => {
   req.params.id = req.user.id;
   req.now = new Date(Date.now());
   next();
 };
 
-// restrict to pegawai dan superadmin
-exports.getAllUsers = base.getAll(User, ['role', 'email', 'name']);
+exports.getAllUsers = async (req, res, next) => {
+  try {
+    const features = new APIFeatures(User.find(), req.query)
+      .sort()
+      .paginate()
+      .filter();
 
-exports.getUser = base.getOne(User);
+    const doc = await features.query;
+
+    Response.responseSuccess(res, doc);
+  } catch (error) {
+    next(error);
+  }
+};
+
+// exports.getUser = base.getOne(User);
+exports.getUser = async (req, res, next) => {
+  try {
+    if (!req.params.id) {
+      Response.responseFailed(res, 'no id');
+    }
+
+    const doc = await User.findById(req.params.id);
+    if (!doc) {
+      Response.responseFailed(res, 'no data found');
+    }
+
+    Response.responseSuccess(res, doc);
+  } catch (error) {
+    next(error);
+  }
+};
 
 exports.createUser = async (req, res, next) => {
   try {
