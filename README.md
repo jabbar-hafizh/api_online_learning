@@ -20,8 +20,8 @@ this is API for simple online learning platform
    - import postman collection (online_learning.postman_collection.json)
    - then test the api (don't forget to create environment in postman for {{URL}})
 
-## API Documentation
+## API URL
 
-### API URL
+## API Documentation URL
 
-### API Documentation URL
+https://documenter.getpostman.com/view/17279985/UV5WDy8L
