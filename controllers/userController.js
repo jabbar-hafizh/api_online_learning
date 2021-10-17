@@ -19,7 +19,6 @@ const filterObj = (obj, allowedFields) => {
 };
 
 exports.getMe = (req, res, next) => {
-  console.log('getMe');
   req.params.id = req.user.id;
   req.now = new Date(Date.now());
   next();
@@ -125,7 +124,6 @@ exports.deleteUser = async (req, res, next) => {
 };
 
 exports.updateUser = async (req, res, next) => {
-  console.log('udpateUser');
   try {
     if (!req.params.id) {
       return response.responseFailed(res, 'no id');
@@ -184,27 +182,19 @@ exports.uploadUserPhoto = upload.single('photo');
 exports.resizeUserPhoto = async (req, res, next) => {
   try {
     let user;
-    // ini untuk create
-    if (!req.params.id) {
-      user = req.body;
-    }
-    // ini untuk update
-    else {
-      user = await User.findById(req.params.id);
-      console.log('user', user);
-      if (
-        user.photo !==
-        'https://api-online-learning.herokuapp.com/img/users/default-user-image.png'
-      ) {
-        fs.unlink(`public/img/users/${user.photo}`, (err) => {
-          console.error(err);
-        });
-      }
+
+    user = await User.findById(req.params.id);
+    if (
+      user.photo !==
+      'cloudinary://586343634294824:thCQt6J6IQ41epoKguswA01Otbg@dvi01vqu1/default-user-image.png'
+    ) {
+      fs.unlink(`public/img/users/${user.photo}`, (err) => {
+        console.error(err);
+      });
     }
 
     if (!req.file) return next();
     req.file.filename = `user-${Date.now()}.jpeg`.replace(/\s/g, '');
-    // }-${Date.now()}.jpeg`;
 
     await sharp(req.file.buffer)
       .resize(500, 500)
@@ -219,9 +209,6 @@ exports.resizeUserPhoto = async (req, res, next) => {
 };
 
 exports.uploadPict = async (req, res, next) => {
-  console.log('uploadPict');
-  console.log('req.file', req.file);
-
   try {
     if (!req.params.id) {
       return response.responseFailed(res, 'please login first');
@@ -254,7 +241,11 @@ exports.uploadPict = async (req, res, next) => {
       };
     }
 
-    user = await User.findByIdAndUpdate(req.params.id, { photo }, { new: true });
+    user = await User.findByIdAndUpdate(
+      req.params.id,
+      { photo },
+      { new: true }
+    );
     return response.responseSuccess(res, user);
   } catch (err) {
     next(err);
