@@ -1,3 +1,5 @@
+const common = require('../utils/common');
+
 class APIFeatures {
   constructor(query, queryString) {
     this.query = query;
@@ -26,10 +28,6 @@ class APIFeatures {
     // \b\b artinya specific untuk misal kata 'gte' tidak akan berubah jika 'agtek'
     // /g artinya global. akan merubah semua kata bukan hanya kata pertama yang ditemukan
     const pars = JSON.parse(queryStr);
-
-    // const now = new Date(Date.now());
-
-    // if (pars.time) pars.time = this.timeFilter(pars.time, now);
 
     this.query = this.query.find(pars);
     return this;

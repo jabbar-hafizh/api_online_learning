@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const User = require('../models/userModel');
 const AppError = require('../utils/appError');
-const Response = require('../utils/response');
+const response = require('../utils/response');
 
 const filterObj = (obj, allowedFields) => {
   const newObj = {};
@@ -45,7 +45,7 @@ const createSendToken = (user, statusCode, req, res) => {
     user: user,
     token: token,
   };
-  Response.responseSuccess(res, user, 'OK', statusCode);
+  response.responseSuccess(res, user, 'OK', statusCode);
 };
 
 exports.login = async (req, res, next) => {
@@ -55,7 +55,7 @@ exports.login = async (req, res, next) => {
 
     // 1) check if email and password exist
     if (!email || !password) {
-      Response.responseFailed(res, 'email and password are required');
+      response.responseFailed(res, 'email and password are required');
       // return next(new AppError('email dan password wajib diisi', 400));
     }
 
@@ -66,12 +66,12 @@ exports.login = async (req, res, next) => {
     }).select('+password');
 
     if (!user) {
-      Response.responseFailed(res, 'no data found');
+      response.responseFailed(res, 'no data found');
       // return next(new AppError('email atau password salah', 401)); //401 is unauthorized
     }
 
     if (!(await user.correctPassword(password, user.password))) {
-      Response.responseFailed(res, 'email and password are not match', 401);
+      response.responseFailed(res, 'email and password are not match', 401);
       // return next(new AppError('email atau password salah', 401)); //401 is unauthorized
     }
 
@@ -137,19 +137,14 @@ exports.protect = async (req, res, next) => {
     // }
 
     if (!token) {
-      Response.responseFailed(res, 'Unauthorized', 401);
-      // return next(new AppError('silahkan login untuk mendapatkan akses', 401));
+      response.responseFailed(res, 'Unauthorized', 401);
     }
 
     const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
 
     const user = await User.findOne({ _id: decoded.id, isDeleted: false });
     if (!user) {
-      Response.responseFailed(res, 'no data found', 400);
-
-      // return next(
-      //   new AppError('tidak ada user yang cocok dengan token ini', 401)
-      // );
+      response.responseFailed(res, 'no data found', 400);
     }
 
     // if (user.changedPasswordAfter(decoded.iat)) {
@@ -175,13 +170,7 @@ exports.restrictTo =
     console.log(roles);
     console.log(roles.includes(req.user.role));
     if (!roles.includes(req.user.role)) {
-      Response.responseFailed(res, 'Unauthorized', 401);
-      // return next(
-      //   new AppError(
-      //     'role kamu tidak memiliki izin untuk melakukan tindakan ini',
-      //     403
-      //   )
-      // );
+      response.responseFailed(res, 'Unauthorized', 401);
     }
     next();
   };

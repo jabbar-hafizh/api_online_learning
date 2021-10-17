@@ -21,6 +21,7 @@ router.patch('/updateMe', userController.getMe, userController.updateUser);
 //   authController.restrictTo('admin', 'user'),
 //   authController.logout
 // );
+
 router
   .route('/')
   .get(authController.restrictTo('admin'), userController.getAllUsers)

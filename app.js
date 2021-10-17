@@ -13,7 +13,7 @@ const articleRoutes = require('./routes/articleRoutes');
 const commentRoutes = require('./routes/commentRoutes');
 const globalErrHandler = require('./controllers/errorController');
 const AppError = require('./utils/appError');
-const Response = require('./utils/response');
+const response = require('./utils/response');
 const app = express();
 
 // Allow Cross-Origin requests
@@ -59,7 +59,7 @@ app.use('/api/v1/comments', commentRoutes);
 
 // handle undefined Routes
 app.use('*', (req, res, next) => {
-  Response.responseFailed(res, 'undefined route', 404);
+  response.responseFailed(res, 'undefined route', 404);
   // const err = new AppError(404, 'fail', 'undefined route');
   // next(err, req, res, next);
 });
