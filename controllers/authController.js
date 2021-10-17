@@ -45,7 +45,7 @@ const createSendToken = (user, statusCode, req, res) => {
     user: user,
     token: token,
   };
-  response.responseSuccess(res, user, 'OK', statusCode);
+  return response.responseSuccess(res, user, 'OK', statusCode);
 };
 
 exports.login = async (req, res, next) => {
@@ -55,7 +55,7 @@ exports.login = async (req, res, next) => {
 
     // 1) check if email and password exist
     if (!email || !password) {
-      response.responseFailed(res, 'email and password are required');
+      return response.responseFailed(res, 'email and password are required');
       // return next(new AppError('email dan password wajib diisi', 400));
     }
 
@@ -66,12 +66,16 @@ exports.login = async (req, res, next) => {
     }).select('+password');
 
     if (!user) {
-      response.responseFailed(res, 'no data found');
+      return response.responseFailed(res, 'no data found');
       // return next(new AppError('email atau password salah', 401)); //401 is unauthorized
     }
 
     if (!(await user.correctPassword(password, user.password))) {
-      response.responseFailed(res, 'email and password are not match', 401);
+      return response.responseFailed(
+        res,
+        'email and password are not match',
+        401
+      );
       // return next(new AppError('email atau password salah', 401)); //401 is unauthorized
     }
 
@@ -137,14 +141,14 @@ exports.protect = async (req, res, next) => {
     // }
 
     if (!token) {
-      response.responseFailed(res, 'Unauthorized', 401);
+      return response.responseFailed(res, 'Unauthorized', 401);
     }
 
     const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
 
     const user = await User.findOne({ _id: decoded.id, isDeleted: false });
     if (!user) {
-      response.responseFailed(res, 'no data found', 400);
+      return response.responseFailed(res, 'no data found', 400);
     }
 
     // if (user.changedPasswordAfter(decoded.iat)) {
@@ -170,7 +174,7 @@ exports.restrictTo =
     console.log(roles);
     console.log(roles.includes(req.user.role));
     if (!roles.includes(req.user.role)) {
-      response.responseFailed(res, 'Unauthorized', 401);
+      return response.responseFailed(res, 'Unauthorized', 401);
     }
     next();
   };

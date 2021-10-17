@@ -28,7 +28,7 @@ exports.getMe = (req, res, next) => {
 
 exports.getAllUsers = async (req, res, next) => {
   try {
-    const features = new APIFeatures(User.find(), req.query)
+    const features = new APIFeatures(User.find({ isDeleted: false }), req.query)
       .sort()
       .paginate()
       .filter();
@@ -38,7 +38,7 @@ exports.getAllUsers = async (req, res, next) => {
       users: doc,
     };
 
-    response.responseSuccess(res, users);
+    return response.responseSuccess(res, users);
   } catch (error) {
     next(error);
   }
@@ -47,18 +47,18 @@ exports.getAllUsers = async (req, res, next) => {
 exports.getUser = async (req, res, next) => {
   try {
     if (!req.params.id) {
-      response.responseFailed(res, 'no id');
+      return response.responseFailed(res, 'no id');
     }
 
     const doc = await User.findById(req.params.id);
     if (!doc) {
-      response.responseFailed(res, 'no data found');
+      return response.responseFailed(res, 'no data found');
     }
     const user = {
       user: doc,
     };
 
-    response.responseSuccess(res, user);
+    return response.responseSuccess(res, user);
   } catch (error) {
     next(error);
   }
@@ -104,7 +104,7 @@ exports.createUser = async (req, res, next) => {
 exports.deleteUser = async (req, res, next) => {
   try {
     if (!req.params.id) {
-      response.responseFailed(res, 'no id');
+      return response.responseFailed(res, 'no id');
     }
 
     const doc = await User.findByIdAndUpdate(
@@ -115,13 +115,13 @@ exports.deleteUser = async (req, res, next) => {
       { new: true }
     );
     if (!doc) {
-      response.responseFailed(res, 'no data found');
+      return response.responseFailed(res, 'no data found');
     }
     const user = {
       user: doc,
     };
 
-    response.responseSuccess(res, user);
+    return response.responseSuccess(res, user);
   } catch (error) {
     next(error);
   }
@@ -131,12 +131,12 @@ exports.updateUser = async (req, res, next) => {
   console.log('udpateUser');
   try {
     if (!req.params.id) {
-      response.responseFailed(res, 'no id');
+      return response.responseFailed(res, 'no id');
     }
 
     // 1) Create error if user POSTs password data
     if (req.body.password || req.body.passwordConfirm) {
-      response.responseFailed(res, 'cannot update password');
+      return response.responseFailed(res, 'cannot update password');
       // return next(new AppError('Bukan tempat untuk update password', 400));
     }
 
@@ -158,7 +158,7 @@ exports.updateUser = async (req, res, next) => {
     const user = {
       user: updatedUser,
     };
-    response.responseSuccess(res, user);
+    return response.responseSuccess(res, user);
   } catch (err) {
     next(err);
   }

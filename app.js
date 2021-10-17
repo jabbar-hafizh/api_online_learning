@@ -9,8 +9,8 @@ const cors = require('cors');
 const cookieParser = require('cookie-parser');
 
 const userRoutes = require('./routes/userRoutes');
-const articleRoutes = require('./routes/articleRoutes');
-const commentRoutes = require('./routes/commentRoutes');
+const courseCategoryRoutes = require('./routes/courseCategoryRoutes');
+const courseRoutes = require('./routes/courseRoutes');
 const globalErrHandler = require('./controllers/errorController');
 const AppError = require('./utils/appError');
 const response = require('./utils/response');
@@ -54,12 +54,12 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Routes
 app.use('/api/v1/users', userRoutes);
-app.use('/api/v1/articles', articleRoutes);
-app.use('/api/v1/comments', commentRoutes);
+app.use('/api/v1/course-categories', courseCategoryRoutes);
+app.use('/api/v1/courses', courseRoutes);
 
 // handle undefined Routes
 app.use('*', (req, res, next) => {
-  response.responseFailed(res, 'undefined route', 404);
+  return response.responseFailed(res, 'undefined route', 404);
   // const err = new AppError(404, 'fail', 'undefined route');
   // next(err, req, res, next);
 });

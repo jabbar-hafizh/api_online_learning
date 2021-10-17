@@ -1,5 +1,5 @@
 exports.responseSuccess = (res, data = null, message = 'OK', code = 200) => {
-  res.status(200).json({
+  return res.status(200).json({
     status: 'Success',
     code: code,
     message: message,
@@ -8,7 +8,7 @@ exports.responseSuccess = (res, data = null, message = 'OK', code = 200) => {
 };
 
 exports.responseFailed = (res, message = 'Fail', code = 400) => {
-  res.status(400).json({
+  return res.status(400).json({
     status: 'Fail',
     code: code,
     message: message,
