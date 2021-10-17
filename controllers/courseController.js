@@ -33,23 +33,58 @@ exports.create = async (req, res, next) => {
 
 exports.getAll = async (req, res, next) => {
   try {
-    const features = new APIFeatures(
-      Course.find({ isDeleted: false }).populate({
-        path: 'courseCategoryId',
-      }),
-      req.query
-    )
-      .sort()
-      .paginate()
-      .filter();
+    const aggregateQuery = [{ $match: { isDeleted: false } }];
+    aggregateQuery.push({
+      $lookup: {
+        from: 'course_categories',
+        localField: 'courseCategoryId',
+        foreignField: '_id',
+        as: 'courseCateogry',
+      },
+    });
 
-    const doc = await features.query;
-    const courseCategories = {
-      total: doc.length,
-      courseCategories: doc,
+    if (req.query) {
+      const queryFilter = {};
+
+      if (req.query.filterName) {
+        queryFilter.name = common.diacriticSensitiveRegex(req.query.filterName);
+      }
+
+      if (Object.keys(queryFilter).length > 0) {
+        aggregateQuery.push({ $match: queryFilter });
+      }
+    }
+
+    if (req.query) {
+      const sort = {};
+
+      if (req.query.sortPrice) {
+        if (req.query.sortPrice === 'asc') {
+          sort.price = 1;
+        } else {
+          sort.price = -1;
+        }
+      }
+      if (req.query.sortIsPremium) {
+        if (req.query.sortIsPremium === 'asc') {
+          sort.isPremium = 1;
+        } else {
+          sort.isPremium = -1;
+        }
+      }
+
+      if (Object.keys(sort).length > 0) {
+        aggregateQuery.push({ $sort: sort });
+      }
+    }
+
+    let courses = await Course.aggregate(aggregateQuery);
+    const coursesObject = {
+      total: courses.length,
+      courses: courses,
     };
 
-    return response.responseSuccess(res, courseCategories);
+    return response.responseSuccess(res, coursesObject);
   } catch (error) {
     next(error);
   }

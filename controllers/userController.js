@@ -4,8 +4,6 @@ const fs = require('fs');
 
 const User = require('../models/userModel');
 
-const base = require('./baseController');
-
 const AppError = require('../utils/appError');
 const APIFeatures = require('../utils/apiFeatures');
 const response = require('../utils/response');
