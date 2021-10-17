@@ -5,14 +5,27 @@ const courseCategoryController = require('../controllers/courseCategoryControlle
 
 router
   .route('/')
-  .post(courseCategoryController.create)
+  .post(
+    authController.protect,
+    authController.restrictTo('admin'),
+    courseCategoryController.create
+  )
   .get(courseCategoryController.getAll);
 
 router
   .route('/:id')
   .get(courseCategoryController.get)
-  .patch(courseCategoryController.update);
+  .patch(
+    authController.protect,
+    authController.restrictTo('admin'),
+    courseCategoryController.update
+  );
 
-router.patch('/:id/delete', courseCategoryController.delete);
+router.patch(
+  '/:id/delete',
+  authController.protect,
+  authController.restrictTo('admin'),
+  courseCategoryController.delete
+);
 
 module.exports = router;
