@@ -41,34 +41,38 @@ const createSendToken = (user, statusCode, req, res) => {
 
   // menghilangkan dari output. ini tidak akan merubah database karena kta tidak melakukan save
   user.password = undefined;
-
-  res.status(statusCode).json({
-    success: true,
-    code: `${statusCode}`,
-    message: 'OK',
-    data: {
-      user,
-      token,
-    },
-  });
+  user = {
+    user: user,
+    token: token,
+  };
+  Response.responseSuccess(res, user, 'OK', statusCode);
 };
 
 exports.login = async (req, res, next) => {
+  console.log('login entry');
   try {
     const { email, password } = req.body;
 
     // 1) check if email and password exist
     if (!email || !password) {
-      return next(new AppError('email dan password wajib diisi', 400));
+      Response.responseFailed(res, 'email and password are required');
+      // return next(new AppError('email dan password wajib diisi', 400));
     }
 
     // 2) check if user exist and password is correct
     const user = await User.findOne({
       email: email,
+      isDeleted: false,
     }).select('+password');
 
-    if (!user || !(await user.correctPassword(password, user.password))) {
-      return next(new AppError('email atau password salah', 401)); //401 is unauthorized
+    if (!user) {
+      Response.responseFailed(res, 'no data found');
+      // return next(new AppError('email atau password salah', 401)); //401 is unauthorized
+    }
+
+    if (!(await user.correctPassword(password, user.password))) {
+      Response.responseFailed(res, 'email and password are not match', 401);
+      // return next(new AppError('email atau password salah', 401)); //401 is unauthorized
     }
 
     // 3) All correct, send jwt to client
@@ -132,7 +136,6 @@ exports.protect = async (req, res, next) => {
     //   token = req.cookies.jwt;
     // }
 
-    console.log('protect func');
     if (!token) {
       Response.responseFailed(res, 'Unauthorized', 401);
       // return next(new AppError('silahkan login untuk mendapatkan akses', 401));
@@ -140,11 +143,13 @@ exports.protect = async (req, res, next) => {
 
     const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
 
-    const user = await User.findById(decoded.id);
+    const user = await User.findOne({ _id: decoded.id, isDeleted: false });
     if (!user) {
-      return next(
-        new AppError('tidak ada user yang cocok dengan token ini', 401)
-      );
+      Response.responseFailed(res, 'no data found', 400);
+
+      // return next(
+      //   new AppError('tidak ada user yang cocok dengan token ini', 401)
+      // );
     }
 
     // if (user.changedPasswordAfter(decoded.iat)) {

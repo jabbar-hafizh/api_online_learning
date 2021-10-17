@@ -33,14 +33,16 @@ exports.getAllUsers = async (req, res, next) => {
       .filter();
 
     const doc = await features.query;
+    const users = {
+      users: doc,
+    };
 
-    Response.responseSuccess(res, doc);
+    Response.responseSuccess(res, users);
   } catch (error) {
     next(error);
   }
 };
 
-// exports.getUser = base.getOne(User);
 exports.getUser = async (req, res, next) => {
   try {
     if (!req.params.id) {
@@ -51,8 +53,11 @@ exports.getUser = async (req, res, next) => {
     if (!doc) {
       Response.responseFailed(res, 'no data found');
     }
+    const user = {
+      user: doc,
+    };
 
-    Response.responseSuccess(res, doc);
+    Response.responseSuccess(res, user);
   } catch (error) {
     next(error);
   }
@@ -94,7 +99,32 @@ exports.createUser = async (req, res, next) => {
 };
 
 // Don't update password on this
-exports.deleteUser = base.deleteOne(User);
+// exports.deleteUser = base.deleteOne(User);
+exports.deleteUser = async (req, res, next) => {
+  try {
+    if (!req.params.id) {
+      Response.responseFailed(res, 'no id');
+    }
+
+    const doc = await User.findByIdAndUpdate(
+      req.params.id,
+      {
+        isDeleted: true,
+      },
+      { new: true }
+    );
+    if (!doc) {
+      Response.responseFailed(res, 'no data found');
+    }
+    const user = {
+      user: doc,
+    };
+
+    Response.responseSuccess(res, user);
+  } catch (error) {
+    next(error);
+  }
+};
 
 exports.updateUser = async (req, res, next) => {
   try {

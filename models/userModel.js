@@ -40,7 +40,7 @@ const userSchema = new mongoose.Schema({
   isDeleted: {
     type: Boolean,
     default: false,
-    select: false,
+    // select: false,
   },
   photo: {
     type: String,
@@ -81,11 +81,11 @@ userSchema.pre('save', function (next) {
   next();
 });
 
-userSchema.pre(/^find/, function (next) {
-  // this points to the current query
-  this.find({ isDeleted: { $ne: true } });
-  next();
-});
+// userSchema.pre(/^find/, function (next) {
+//   // this points to the current query
+//   this.find({ isDeleted: { $ne: true } });
+//   next();
+// });
 
 // This is Instance Method that is gonna be available on all documents in a certain collection
 userSchema.methods.correctPassword = async function (

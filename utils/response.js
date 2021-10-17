@@ -3,9 +3,7 @@ exports.responseSuccess = (res, data = null, message = 'OK', code = 200) => {
     status: 'Success',
     code: code,
     message: message,
-    data: {
-      doc: data,
-    },
+    data: data,
   });
 };
 
