@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 const courseCategoryController = require('../controllers/courseCategoryController');
+const authController = require('../controllers/authController');
 
 router
   .route('/')
