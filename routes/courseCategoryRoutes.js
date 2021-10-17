@@ -4,6 +4,8 @@ const router = express.Router();
 const courseCategoryController = require('../controllers/courseCategoryController');
 const authController = require('../controllers/authController');
 
+router.get('/popular', courseCategoryController.getPopular);
+
 router
   .route('/')
   .post(

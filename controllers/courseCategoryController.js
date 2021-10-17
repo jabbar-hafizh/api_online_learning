@@ -3,6 +3,7 @@ const response = require('../utils/response');
 const common = require('../utils/common');
 
 const CourseCategory = require('../models/courseCategoryModel');
+const Course = require('../models/courseModel');
 
 exports.create = async (req, res, next) => {
   try {
@@ -160,5 +161,39 @@ exports.update = async (req, res, next) => {
     return response.responseSuccess(res, courseCategory);
   } catch (err) {
     next(err);
+  }
+};
+
+exports.getPopular = async (req, res, next) => {
+  try {
+    const aggregateQuery = [{ $match: { isDeleted: false } }];
+    aggregateQuery.push({
+      $lookup: {
+        from: 'courses',
+        localField: '_id',
+        foreignField: 'courseCategoryId',
+        as: 'cateogryCourses',
+      },
+    });
+
+    if (req.query) {
+      const sort = {};
+      sort.cateogryCourses = -1;
+
+      if (Object.keys(sort).length > 0) {
+        aggregateQuery.push({ $sort: sort });
+      }
+    }
+
+    let courseCategories = await CourseCategory.aggregate(aggregateQuery);
+
+    const courseCategoriesObject = {
+      total: courseCategories.length,
+      courseCategories: courseCategories,
+    };
+
+    return response.responseSuccess(res, courseCategoriesObject);
+  } catch (error) {
+    next(error);
   }
 };
