@@ -3,6 +3,7 @@ const response = require('../utils/response');
 const common = require('../utils/common');
 
 const Course = require('../models/courseModel');
+const User = require('../models/userModel');
 
 exports.create = async (req, res, next) => {
   try {
@@ -79,6 +80,7 @@ exports.getAll = async (req, res, next) => {
     }
 
     let courses = await Course.aggregate(aggregateQuery);
+
     const coursesObject = {
       total: courses.length,
       courses: courses,
@@ -178,5 +180,23 @@ exports.update = async (req, res, next) => {
     return response.responseSuccess(res, course);
   } catch (err) {
     next(err);
+  }
+};
+
+exports.getStats = async (req, res, next) => {
+  try {
+    let users = await User.find({ isDeleted: false });
+    let courses = await Course.find({ isDeleted: false });
+    let freeCourses = await Course.find({ isDeleted: false, isPremium: false });
+
+    const coursesObject = {
+      total_users: users.length,
+      total_course: courses.length,
+      total_free_course: freeCourses.length,
+    };
+
+    return response.responseSuccess(res, coursesObject);
+  } catch (error) {
+    next(error);
   }
 };
