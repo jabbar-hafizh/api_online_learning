@@ -22,6 +22,8 @@ this is API for simple online learning platform
 
 ## API URL
 
+https://dry-badlands-70648.herokuapp.com/api/v1/courses
+
 ## API Documentation URL
 
 https://documenter.getpostman.com/view/17279985/UV5WDy8L
