@@ -1,6 +1,8 @@
 const express = require('express');
-
 const router = express.Router();
+
+const upload = require('../utils/multer');
+
 const userController = require('../controllers/userController');
 const authController = require('../controllers/authController');
 
@@ -13,6 +15,12 @@ router.use(authController.protect);
 
 router.get('/me', userController.getMe, userController.getUser);
 router.patch('/updateMe', userController.getMe, userController.updateUser);
+router.post(
+  '/upload-pict',
+  userController.getMe,
+  upload.single('image'),
+  userController.uploadPict
+);
 
 // router.use(authController.restrictTo('admin', 'user'));
 
@@ -33,13 +41,13 @@ router
 
 router
   .route('/:id')
-  .get(authController.restrictTo('admin'), userController.getUser)
-  .patch(
-    authController.restrictTo('admin', 'user'),
-    userController.uploadUserPhoto,
-    userController.resizeUserPhoto
-    // userController.updateUser
-  );
+  .get(authController.restrictTo('admin'), userController.getUser);
+// .patch(
+//   authController.restrictTo('admin', 'user'),
+//   userController.uploadUserPhoto,
+//   userController.resizeUserPhoto
+// userController.updateUser
+// );
 
 router
   .route('/:id/delete')

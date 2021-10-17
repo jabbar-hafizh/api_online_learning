@@ -1,6 +1,7 @@
 const multer = require('multer');
 const sharp = require('sharp');
 const fs = require('fs');
+const cloudinary = require('../utils/cloudinary');
 
 const User = require('../models/userModel');
 
@@ -97,8 +98,6 @@ exports.createUser = async (req, res, next) => {
   }
 };
 
-// Don't update password on this
-// exports.deleteUser = base.deleteOne(User);
 exports.deleteUser = async (req, res, next) => {
   try {
     if (!req.params.id) {
@@ -192,18 +191,19 @@ exports.resizeUserPhoto = async (req, res, next) => {
     // ini untuk update
     else {
       user = await User.findById(req.params.id);
-      if (user.photo !== 'default-user-image.png') {
+      console.log('user', user);
+      if (
+        user.photo !==
+        'https://api-online-learning.herokuapp.com/img/users/default-user-image.png'
+      ) {
         fs.unlink(`public/img/users/${user.photo}`, (err) => {
           console.error(err);
         });
       }
-      if (req.body.NIP) {
-        user.NIP = req.body.NIP;
-      }
     }
 
     if (!req.file) return next();
-    req.file.filename = `user-${user.role}-${user.NIP}.jpeg`.replace(/\s/g, '');
+    req.file.filename = `user-${Date.now()}.jpeg`.replace(/\s/g, '');
     // }-${Date.now()}.jpeg`;
 
     await sharp(req.file.buffer)
@@ -213,6 +213,49 @@ exports.resizeUserPhoto = async (req, res, next) => {
       .toFile(`public/img/users/${req.file.filename}`);
 
     next();
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.uploadPict = async (req, res, next) => {
+  console.log('uploadPict');
+  console.log('req.file', req.file);
+
+  try {
+    if (!req.params.id) {
+      return response.responseFailed(res, 'please login first');
+    }
+    let user = await User.findOne({ _id: req.params.id, isDeleted: false });
+    if (!user) {
+      return response.responseFailed(res, 'please login first');
+    }
+    if (user.photo && user.photo.photoId) {
+      // Delete image from cloudinary
+      await cloudinary.uploader.destroy(user.photo.photoId);
+    }
+
+    // Upload image to cloudinary
+    let result;
+    if (req.file) {
+      result = await cloudinary.uploader.upload(req.file.path);
+    }
+
+    let photo = {
+      photoId: '',
+      photoUrl: '',
+      photoName: '',
+    };
+
+    if (result) {
+      photo = {
+        photoUrl: result.secure_url || user.photoUrl,
+        photoId: result.public_id || user.photoId,
+      };
+    }
+
+    user = await User.findByIdAndUpdate(req.params.id, { photo }, { new: true });
+    return response.responseSuccess(res, user);
   } catch (err) {
     next(err);
   }

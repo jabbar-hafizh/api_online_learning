@@ -43,8 +43,9 @@ const userSchema = new mongoose.Schema({
     // select: false,
   },
   photo: {
-    type: String,
-    default: `${process.env.URL}img/users/default-user-image.png`,
+    photoId: String,
+    photoUrl: String,
+    photoName: String,
   },
   passwordChangedAt: Date,
   passwordResetToken: String,

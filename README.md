@@ -24,6 +24,4 @@ this is API for simple online learning platform
 
 ### API URL
 
-https://api_online_learning.herokuapp.com/api/v1/users
-
 ### API Documentation URL
